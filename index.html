@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>P.I.A.R II. Cap amb IA</title>
+  <title>PIAR II. El cap amb IA</title>
   <style>
     :root {
       --primary: #00bcd4;
@@ -11,7 +11,6 @@
       --card: #2a2a40;
       --text: #ffffff;
       --accent: #3f51b5;
-      --header-gray: #cccccc;
     }
     body {
       margin: 0;
@@ -21,61 +20,48 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      height: 100vh;
-      overflow: hidden;
     }
     header {
-      background: transparent;
-      color: var(--header-gray);
+      background: var(--accent);
+      color: white;
       padding: 1rem;
-      text-align: left;
+      text-align: center;
       width: 100%;
       font-size: 1.5rem;
     }
     #camera-container {
       position: relative;
       width: 100%;
-      max-width: 480px;
-      margin-top: 0.5rem;
-      flex: 1;
+      max-width: 720px;
+      margin-top: 1rem;
     }
     canvas {
       width: 100%;
       height: auto;
-      min-height: 240px;
       border-radius: 10px;
-      background-color: black;
     }
     video {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-      pointer-events: none;
+      display: none;
     }
     #info-panel {
       background: var(--card);
-      border-radius: 10px 10px 0 0;
+      border-radius: 10px;
       padding: 1rem;
+      margin: 1rem;
       width: 100%;
       max-width: 720px;
-      box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
-      z-index: 2;
-      position: fixed;
-      bottom: 0;
-      box-sizing: border-box;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      z-index: 1;
     }
     #info-panel p {
-      margin: 0.25rem 0;
+      margin: 0.5rem 0;
     }
     #buttons {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
       justify-content: space-between;
-      margin-top: 0.5rem;
+      margin-top: 1rem;
     }
     button {
       font-size: 1rem;
@@ -99,13 +85,12 @@
       position: fixed;
       top: 0; left: 0;
       width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.9);
+      background: rgba(0,0,0,0.8);
       color: white;
       font-size: 1rem;
       padding: 2rem;
       z-index: 10;
       box-sizing: border-box;
-      overflow-y: auto;
     }
     #info-layer button {
       margin-top: 1rem;
@@ -118,18 +103,17 @@
   </style>
 </head>
 <body>
-  <header>P.I.A.R II. Cap amb IA</header>
+  <header>PIAR II. El cap amb IA</header>
   <div id="camera-container">
     <video id="video" autoplay muted playsinline></video>
     <canvas id="canvas"></canvas>
   </div>
 
   <div id="info-panel">
-    <p><strong>Gir horitzontal:</strong> <span id="yaw">0</span> &nbsp;&nbsp; 
-       <strong>Boca:</strong> <span id="mouth">0</span> &nbsp;&nbsp; 
-       <strong>Ull E:</strong> <span id="eyeL">0</span> &nbsp;&nbsp; 
-       <strong>Ull D:</strong> <span id="eyeR">0</span>
-    </p>
+    <p>Rotació horitzontal (yaw): <span id="yaw">0</span></p>
+    <p>Obertura de la boca: <span id="mouth">0</span></p>
+    <p>Ull esquerre: <span id="eyeL">0</span></p>
+    <p>Ull dret: <span id="eyeR">0</span></p>
     <div id="buttons">
       <button id="connectBtn">🔗 Connectar</button>
       <button id="infoBtn" onclick="document.getElementById('info-layer').style.display='block'">ℹ️ Informació</button>
@@ -139,18 +123,123 @@
   </div>
 
   <div id="info-layer">
-    <h2>Informació del funcionament</h2>
-    <p>Aquesta aplicació utilitza intel·ligència artificial per detectar la posició del cap, l’obertura de la boca i l’estat dels ulls en temps real, i envia aquestes dades a una micro:bit a través de Bluetooth (sense emparellament).</p>
-    <p><strong>Format de dades enviades per UART (6 dígits):</strong></p>
+    <p>L'aplicació envia per UART una cadena de 6 dígits:</p>
     <ul>
-      <li><strong>2 dígits:</strong> gir horitzontal del cap (00 a 99)</li>
-      <li><strong>2 dígits:</strong> obertura de boca (00 a 99)</li>
-      <li><strong>1 dígit:</strong> ull esquerre (0 = tancat, 1 = obert)</li>
-      <li><strong>1 dígit:</strong> ull dret (0 = tancat, 1 = obert)</li>
+      <li>2 primers: rotació del cap (00-99)</li>
+      <li>2 següents: obertura de boca (00-99)</li>
+      <li>1: ull esquerre (0 = tancat, 1 = obert)</li>
+      <li>1: ull dret (0 = tancat, 1 = obert)</li>
     </ul>
-    <p><strong>Exemple:</strong> <code>731011</code> → gir 73, boca 10, ull esquerre obert, dret obert.</p>
-    <p>Projecte inspirat en: <a href="https://cardboard.lofirobot.com/face-app-info/" target="_blank">cardboard.lofirobot.com</a></p>
+    <p>Exemple: <strong>078511</strong></p>
+    <p>Basat en la idea original de:
+      <a href="https://cardboard.lofirobot.com/face-app-info/" target="_blank">
+        cardboard.lofirobot.com</a>
+    </p>
     <button onclick="document.getElementById('info-layer').style.display='none'">Tancar</button>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script>
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const yawEl = document.getElementById('yaw');
+    const mouthEl = document.getElementById('mouth');
+    const eyeLEl = document.getElementById('eyeL');
+    const eyeREl = document.getElementById('eyeR');
+    const statusEl = document.getElementById('status');
+
+    let uartCharacteristic = null;
+
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            facingMode: "user"
+          }
+        });
+        video.srcObject = stream;
+        video.addEventListener("loadedmetadata", () => {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          camera.start();
+        });
+      } catch (err) {
+        alert("Error accedint a la càmera: " + err.message);
+      }
+    }
+
+    const faceMesh = new FaceMesh({
+      locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+    });
+
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    faceMesh.onResults(results => {
+      ctx.save();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(-1, 1);
+      ctx.translate(-canvas.width, 0);
+      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+      if (results.multiFaceLandmarks.length > 0) {
+        const lm = results.multiFaceLandmarks[0];
+        const yaw = getYaw(lm);
+        const mouth = getMouthOpen(lm);
+        const eyeL = getEyeOpen(lm, true);
+        const eyeR = getEyeOpen(lm, false);
+        yawEl.textContent = yaw;
+        mouthEl.textContent = mouth;
+        eyeLEl.textContent = eyeL;
+        eyeREl.textContent = eyeR;
+        window.drawConnectors(ctx, lm, window.FACEMESH_FACE_OVAL, { color: '#00FF00', lineWidth: 2 });
+        window.drawConnectors(ctx, lm, window.FACEMESH_LEFT_EYE, { color: '#0000FF', lineWidth: 1 });
+        window.drawConnectors(ctx, lm, window.FACEMESH_RIGHT_EYE, { color: '#0000FF', lineWidth: 1 });
+        window.drawConnectors(ctx, lm, window.FACEMESH_LIPS, { color: '#FF0000', lineWidth: 2 });
+      }
+      ctx.restore();
+    });
+
+    function distance(p1, p2) {
+      return Math.hypot(p1.x - p2.x, p1.y - p2.y);
+    }
+    function getYaw(lm) {
+      const dx = lm[454].x - lm[234].x;
+      const nx = (lm[1].x - lm[234].x) / dx;
+      return Math.max(0, Math.min(99, Math.round((nx - 0.5) * 20 + 5)));
+    }
+    function getMouthOpen(lm) {
+      return Math.max(0, Math.min(99, Math.round(distance(lm[13], lm[14]) * 100)));
+    }
+    function getEyeOpen(lm, left) {
+      const top = lm[left ? 159 : 386];
+      const bot = lm[left ? 145 : 374];
+      return distance(top, bot) * 100 > 1.5 ? 1 : 0;
+    }
+
+    const camera = new Camera(video, {
+      onFrame: async () => {
+        await faceMesh.send({ image: video });
+      },
+      width: 1280,
+      height: 720
+    });
+
+    startCamera();
+  </script>
 </body>
 </html>
