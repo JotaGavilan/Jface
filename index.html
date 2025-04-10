@@ -38,7 +38,9 @@
     canvas {
       width: 100%;
       height: auto;
+      min-height: 240px;
       border-radius: 10px;
+      background-color: black;
     }
     video {
       display: none;
@@ -163,16 +165,16 @@
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
+            width: { ideal: 640 },
+            height: { ideal: 480 },
             facingMode: "user"
           }
         });
         video.srcObject = stream;
         video.addEventListener("loadedmetadata", () => {
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          camera.start();
+          canvas.width = video.videoWidth || 640;
+          canvas.height = video.videoHeight || 480;
+          setTimeout(() => camera.start(), 300);
         });
       } catch (err) {
         alert("Error accedint a la càmera: " + err.message);
@@ -196,47 +198,34 @@
       ctx.scale(-1, 1);
       ctx.translate(-canvas.width, 0);
       ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+
       if (results.multiFaceLandmarks.length > 0) {
         const lm = results.multiFaceLandmarks[0];
         const yaw = getYaw(lm);
         const mouth = getMouthOpen(lm);
         const eyeL = getEyeOpen(lm, true);
         const eyeR = getEyeOpen(lm, false);
+
         yawEl.textContent = yaw;
         mouthEl.textContent = mouth;
         eyeLEl.textContent = eyeL;
         eyeREl.textContent = eyeR;
+
         window.drawConnectors(ctx, lm, window.FACEMESH_FACE_OVAL, { color: '#00FF00', lineWidth: 2 });
         window.drawConnectors(ctx, lm, window.FACEMESH_LEFT_EYE, { color: '#0000FF', lineWidth: 1 });
         window.drawConnectors(ctx, lm, window.FACEMESH_RIGHT_EYE, { color: '#0000FF', lineWidth: 1 });
         window.drawConnectors(ctx, lm, window.FACEMESH_LIPS, { color: '#FF0000', lineWidth: 2 });
       }
+
       ctx.restore();
     });
-
-    function distance(p1, p2) {
-      return Math.hypot(p1.x - p2.x, p1.y - p2.y);
-    }
-    function getYaw(lm) {
-      const dx = lm[454].x - lm[234].x;
-      const nx = (lm[1].x - lm[234].x) / dx;
-      return Math.max(0, Math.min(99, Math.round((nx - 0.5) * 20 + 5)));
-    }
-    function getMouthOpen(lm) {
-      return Math.max(0, Math.min(99, Math.round(distance(lm[13], lm[14]) * 100)));
-    }
-    function getEyeOpen(lm, left) {
-      const top = lm[left ? 159 : 386];
-      const bot = lm[left ? 145 : 374];
-      return distance(top, bot) * 100 > 1.5 ? 1 : 0;
-    }
 
     const camera = new Camera(video, {
       onFrame: async () => {
         await faceMesh.send({ image: video });
       },
-      width: 1280,
-      height: 720
+      width: 640,
+      height: 480
     });
 
     startCamera();
