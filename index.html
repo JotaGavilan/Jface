@@ -43,8 +43,14 @@
       background-color: black;
     }
     video {
-      display: none;
-    }
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
     #info-panel {
       background: var(--card);
       border-radius: 10px;
@@ -171,6 +177,7 @@
           }
         });
         video.srcObject = stream;
+        video.play().catch(err => console.warn("No s'ha pogut reproduir automàticament:", err));
         video.addEventListener("loadedmetadata", () => {
           canvas.width = video.videoWidth || 640;
           canvas.height = video.videoHeight || 480;
