@@ -1,60 +1,158 @@
 <!DOCTYPE html>
-<html>
+<html lang="ca">
 <head>
-  <title>Detección facial + micro:bit</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PIAR II. El cap amb IA</title>
   <style>
-    body { margin: 0; font-family: sans-serif; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f2f2;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      background: #004080;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      width: 100%;
+      font-size: 1.5rem;
+    }
     video, canvas {
+      width: 100%;
+      max-width: 480px;
+      height: auto;
       position: absolute;
       top: 0;
       left: 0;
       transform: scaleX(-1);
+      z-index: 1;
     }
-    #info {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(255,255,255,0.85);
-      padding: 10px;
-      border-radius: 8px;
-      z-index: 10;
+    #camera-container {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      margin-top: 1rem;
+    }
+    #info-panel {
+      position: relative;
+      background: white;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-top: 320px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 2;
+    }
+    #info-panel p {
+      margin: 0.5rem 0;
+      font-size: 1rem;
+    }
+    #buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+    button {
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
     #connectBtn {
-      margin-top: 10px;
-      padding: 5px 10px;
-      font-size: 14px;
+      background-color: #007BFF;
+      color: white;
+    }
+    #connectBtn::before {
+      content: '\1F4F1'; /* emoji bluetooth */
+      margin-right: 8px;
+    }
+    #helpBtn {
+      background-color: #eee;
+      color: #333;
+    }
+    #status {
+      margin-top: 0.5rem;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+    @media screen and (max-width: 600px) {
+      header {
+        font-size: 1.2rem;
+      }
+      #info-panel p {
+        font-size: 0.9rem;
+      }
+      button {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
 <body>
-  <video id="video" width="640" height="480" autoplay muted playsinline></video>
-  <canvas id="canvas" width="640" height="480"></canvas>
-
-  <div id="info">
-    <p>Rotación horizontal (yaw): <span id="yaw">0</span></p>
-    <p>Apertura boca: <span id="mouth">0</span></p>
-    <p>Apertura ojo izquierdo: <span id="eyeL">0</span></p>
-    <p>Apertura ojo derecho: <span id="eyeR">0</span></p>
-    <button id="connectBtn">🔗 Conectar con micro:bit</button>
+  <header>PIAR II. El cap amb IA</header>
+  <div id="camera-container">
+    <video id="video" autoplay muted playsinline></video>
+    <canvas id="canvas"></canvas>
   </div>
 
-  <!-- MediaPipe -->
+  <div id="info-panel">
+    <p>Rotació horitzontal (yaw): <span id="yaw">0</span></p>
+    <p>Obertura de la boca: <span id="mouth">0</span></p>
+    <p>Ull esquerre: <span id="eyeL">0</span></p>
+    <p>Ull dret: <span id="eyeR">0</span></p>
+    <div id="buttons">
+      <button id="connectBtn">Connectar</button>
+      <button id="helpBtn">? Info UART</button>
+    </div>
+    <div id="status">⏳ Esperant connexió...</div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
 
   <script>
-    const yawEl = document.getElementById('yaw');
-    const mouthEl = document.getElementById('mouth');
-    const eyeLEl = document.getElementById('eyeL');
-    const eyeREl = document.getElementById('eyeR');
-    const connectBtn = document.getElementById('connectBtn');
-
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
+    const yawEl = document.getElementById('yaw');
+    const mouthEl = document.getElementById('mouth');
+    const eyeLEl = document.getElementById('eyeL');
+    const eyeREl = document.getElementById('eyeR');
+    const statusEl = document.getElementById('status');
+    const connectBtn = document.getElementById('connectBtn');
+    const helpBtn = document.getElementById('helpBtn');
+
     let uartCharacteristic = null;
+
+    helpBtn.onclick = () => {
+      alert("L'aplicació envia per UART una cadena de 6 dígits:\n\n- 2 primers: rotació del cap (00-99)\n- 2 següents: obertura de boca (00-99)\n- 1: ull esquerre (0 = tancat, 1 = obert)\n- 1: ull dret (0 = tancat, 1 = obert)\n\nExemple: 078511");
+    };
+
+    connectBtn.onclick = async () => {
+      statusEl.textContent = "🔍 Buscant micro:bit...";
+      try {
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{ namePrefix: "BBC micro:bit" }],
+          optionalServices: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e']
+        });
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
+        uartCharacteristic = await service.getCharacteristic('6e400002-b5a3-f393-e0a9-e50e24dcca9e');
+        statusEl.textContent = "✅ micro:bit connectada";
+      } catch (err) {
+        console.error("❌ Error de connexió:", err);
+        statusEl.textContent = "❌ No s'ha pogut connectar amb micro:bit";
+      }
+    };
 
     function distance(p1, p2) {
       return Math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2);
@@ -83,45 +181,11 @@
 
     function sendUART(yaw, mouth, eyeL, eyeR) {
       if (!uartCharacteristic) return;
-      const yawStr = yaw.toString().padStart(2, '0');
-      const mouthStr = mouth.toString().padStart(2, '0');
-      const data = yawStr + mouthStr + eyeL + eyeR;
+      const data = yaw.toString().padStart(2, '0') + mouth.toString().padStart(2, '0') + eyeL + eyeR;
       const encoder = new TextEncoder();
       uartCharacteristic.writeValue(encoder.encode(data + "\n"));
-      console.log("🔵 Enviado por UART:", data);
+      console.log("📤 UART:", data);
     }
-
-    async function connectToMicrobit() {
-      try {
-        console.log("🔍 Buscando micro:bit...");
-        const device = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: "BBC micro:bit" }],
-          optionalServices: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e']
-        });
-
-        // ⚠️ Reconectar si está desconectado
-        if (!device.gatt.connected) {
-          console.log("🔁 Intentando conexión GATT...");
-          await device.gatt.connect();
-        }
-
-        const server = device.gatt;
-
-        console.log("✅ Conexión GATT activa");
-
-        const service = await server.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
-        uartCharacteristic = await service.getCharacteristic('6e400002-b5a3-f393-e0a9-e50e24dcca9e');
-
-        alert("✅ micro:bit conectada correctamente");
-      } catch (err) {
-        console.error("❌ Error de conexión:", err);
-        alert("❌ No se pudo conectar con micro:bit:\n" + err.message);
-      }
-    }
-
-
-
-    connectBtn.addEventListener("click", connectToMicrobit);
 
     const faceMesh = new FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
@@ -140,12 +204,11 @@
       ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
       if (results.multiFaceLandmarks.length > 0) {
-        const landmarks = results.multiFaceLandmarks[0];
-
-        const yaw = getYaw(landmarks);
-        const mouth = getMouthOpen(landmarks);
-        const eyeL = getEyeOpen(landmarks, true);
-        const eyeR = getEyeOpen(landmarks, false);
+        const lm = results.multiFaceLandmarks[0];
+        const yaw = getYaw(lm);
+        const mouth = getMouthOpen(lm);
+        const eyeL = getEyeOpen(lm, true);
+        const eyeR = getEyeOpen(lm, false);
 
         yawEl.textContent = yaw;
         mouthEl.textContent = mouth;
@@ -154,10 +217,10 @@
 
         sendUART(yaw, mouth, eyeL, eyeR);
 
-        window.drawConnectors(ctx, landmarks, window.FACEMESH_FACE_OVAL, { color: '#00FF00', lineWidth: 2 });
-        window.drawConnectors(ctx, landmarks, window.FACEMESH_LEFT_EYE, { color: '#0000FF', lineWidth: 1 });
-        window.drawConnectors(ctx, landmarks, window.FACEMESH_RIGHT_EYE, { color: '#0000FF', lineWidth: 1 });
-        window.drawConnectors(ctx, landmarks, window.FACEMESH_LIPS, { color: '#FF0000', lineWidth: 2 });
+        window.drawConnectors(ctx, lm, window.FACEMESH_FACE_OVAL, { color: '#00FF00', lineWidth: 2 });
+        window.drawConnectors(ctx, lm, window.FACEMESH_LEFT_EYE, { color: '#0000FF', lineWidth: 1 });
+        window.drawConnectors(ctx, lm, window.FACEMESH_RIGHT_EYE, { color: '#0000FF', lineWidth: 1 });
+        window.drawConnectors(ctx, lm, window.FACEMESH_LIPS, { color: '#FF0000', lineWidth: 2 });
       }
 
       ctx.restore();
@@ -175,7 +238,7 @@
       video.srcObject = stream;
       camera.start();
     }).catch(err => {
-      alert("Error accediendo a la cámara: " + err.message);
+      alert("Error accedint a la càmera: " + err.message);
     });
   </script>
 </body>
