@@ -115,6 +115,19 @@
     #info-layer a {
       color: #4fc3f7;
     }
+    #panel-anàlisi {
+      position: absolute;
+      bottom: 100px;
+      right: 10px;
+      background: rgba(42,42,64,0.95);
+      color: white;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      z-index: 5;
+      display: none;
+      max-width: 250px;
+    }
   </style>
 </head>
 <body>
@@ -123,6 +136,7 @@
     <video id="video" autoplay muted playsinline></video>
     <canvas id="canvas"></canvas>
   </div>
+
   <div id="info-panel">
     <p><strong>Gir horitzontal:</strong> <span id="yaw">0</span> &nbsp;&nbsp;
        <strong>Boca:</strong> <span id="mouth">0</span> &nbsp;&nbsp;
@@ -135,6 +149,21 @@
     </div>
     <div id="status">⏳ Esperant connexió...</div>
   </div>
+
+  <div id="panel-anàlisi">
+    <button onclick="document.getElementById('panel-anàlisi').style.display='none'">✕</button>
+    <h4>Anàlisi facial</h4>
+    <p><strong>Somriure:</strong> <span id="smile">0</span></p>
+    <p><strong>Front arrugat:</strong> <span id="frown">0</span></p>
+    <p><strong>Celles alçades:</strong> <span id="brows">0</span></p>
+    <p><strong>Cap amunt/avall:</strong> <span id="pitch">0</span></p>
+    <p><strong>Cap inclinat:</strong> <span id="roll">0</span></p>
+  </div>
+
+  <button onclick="document.getElementById('panel-anàlisi').style.display='block'" style="position:absolute;bottom:110px;left:10px;">
+    😊 Mostra anàlisi
+  </button>
+
   <div id="info-layer">
     <h2>Informació del funcionament</h2>
     <p>Aquesta aplicació utilitza intel·ligència artificial per detectar la posició del cap, l’obertura de la boca i l’estat dels ulls en temps real, i envia aquestes dades a una micro:bit a través de Bluetooth (sense emparellament).</p>
@@ -145,62 +174,41 @@
       <li><strong>1 dígit:</strong> ull esquerre (0 = tancat, 1 = obert)</li>
       <li><strong>1 dígit:</strong> ull dret (0 = tancat, 1 = obert)</li>
     </ul>
-    <p><strong>Exemple:</strong> <code>731011</code> → gir 73, boca 10, ull esquerre obert, dret obert.</p>
+    <p><strong>Exemple:</strong> <code>731011</code></p>
     <p>Projecte inspirat en: <a href="https://cardboard.lofirobot.com/face-app-info/" target="_blank">cardboard.lofirobot.com</a></p>
     <button onclick="document.getElementById('info-layer').style.display='none'">Tancar</button>
   </div>
-<!-- Panell d'anàlisi facial ampliat -->
-<div id="panel-anàlisi" style="
-  position: absolute;
-  bottom: 100px;
-  right: 10px;
-  background: rgba(42,42,64,0.95);
-  color: white;
-  padding: 10px;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  z-index: 5;
-  display: none;
-  max-width: 250px;
-">
-  <button onclick="document.getElementById('panel-anàlisi').style.display='none'" 
-          style="float:right;color:white;background:#f44336;border:none;border-radius:5px;padding:2px 6px;cursor:pointer">✕</button>
-  <h4 style="margin:0 0 10px 0;">Anàlisi facial</h4>
-  <p><strong>Somriure:</strong> <span id="smile">0</span></p>
-  <p><strong>Front arrugat:</strong> <span id="frown">0</span></p>
-  <p><strong>Celles alçades:</strong> <span id="brows">0</span></p>
-  <p><strong>Cap amunt/avall:</strong> <span id="pitch">0</span></p>
-  <p><strong>Cap inclinat:</strong> <span id="roll">0</span></p>
-</div>
 
-<!-- Botó per mostrar el panell -->
-<button onclick="document.getElementById('panel-anàlisi').style.display='block'"
-        style="position:absolute;bottom:110px;left:10px;z-index:6;background:#00bcd4;color:white;border:none;padding:8px 12px;border-radius:8px;font-size:0.85rem;">
-  😊 Mostra anàlisi
-</button>
-
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
 <script>
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
+  const { drawConnectors } = window;
+  const { FACEMESH_FACE_OVAL, FACEMESH_LEFT_EYE, FACEMESH_RIGHT_EYE, FACEMESH_LIPS } = window;
+
   const yawEl = document.getElementById('yaw');
   const mouthEl = document.getElementById('mouth');
   const eyeLEl = document.getElementById('eyeL');
   const eyeREl = document.getElementById('eyeR');
   const statusEl = document.getElementById('status');
+
   const smileEl = document.getElementById('smile');
   const frownEl = document.getElementById('frown');
   const browsEl = document.getElementById('brows');
   const pitchEl = document.getElementById('pitch');
   const rollEl = document.getElementById('roll');
+
   let uartCharacteristic = null;
 
   function toggleFullscreen() {
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-    else document.exitFullscreen();
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
   }
 
   document.getElementById('connectBtn').onclick = async () => {
@@ -223,7 +231,13 @@
   const faceMesh = new FaceMesh({
     locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
   });
-  faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+
+  faceMesh.setOptions({
+    maxNumFaces: 1,
+    refineLandmarks: true,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5
+  });
 
   faceMesh.onResults(results => {
     ctx.save();
@@ -239,6 +253,7 @@
       const mouth = getMouthOpen(lm);
       const eyeL = getEyeOpen(lm, true);
       const eyeR = getEyeOpen(lm, false);
+
       yawEl.textContent = yaw;
       mouthEl.textContent = mouth;
       eyeLEl.textContent = eyeL;
@@ -249,6 +264,7 @@
       const brows = Math.round(distance(lm[70], lm[159]) * 100);
       const pitch = Math.round((lm[10].y - lm[152].y) * 100);
       const roll = Math.round((lm[33].y - lm[263].y) * 100);
+
       smileEl.textContent = smile;
       frownEl.textContent = frown;
       browsEl.textContent = brows;
@@ -258,8 +274,7 @@
       if (uartCharacteristic) {
         const data = yaw.toString().padStart(2, '0') + mouth.toString().padStart(2, '0') + eyeL + eyeR;
         const encoder = new TextEncoder();
-        uartCharacteristic.writeValue(encoder.encode(data + "
-"));
+        uartCharacteristic.writeValue(encoder.encode(data + "\\n"));
       }
 
       drawConnectors(ctx, lm, FACEMESH_FACE_OVAL, { color: '#00FF00', lineWidth: 2 });
@@ -267,20 +282,24 @@
       drawConnectors(ctx, lm, FACEMESH_RIGHT_EYE, { color: '#0000FF', lineWidth: 1 });
       drawConnectors(ctx, lm, FACEMESH_LIPS, { color: '#FF0000', lineWidth: 2 });
     }
+
     ctx.restore();
   });
 
   function distance(p1, p2) {
     return Math.hypot(p1.x - p2.x, p1.y - p2.y);
   }
+
   function getYaw(lm) {
     const dx = lm[454].x - lm[234].x;
     const nx = (lm[1].x - lm[234].x) / dx;
     return Math.max(0, Math.min(99, Math.round((nx - 0.5) * 20 + 5)));
   }
+
   function getMouthOpen(lm) {
     return Math.max(0, Math.min(99, Math.round(distance(lm[13], lm[14]) * 100)));
   }
+
   function getEyeOpen(lm, left) {
     const top = lm[left ? 159 : 386];
     const bot = lm[left ? 145 : 374];
@@ -313,7 +332,9 @@
       alert("Error accedint a la càmera: " + err.message);
     }
   }
+
   startCamera();
 </script>
+
 </body>
 </html>
