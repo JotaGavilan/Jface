@@ -43,14 +43,14 @@
       background-color: black;
     }
     video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
-}
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
     #info-panel {
       background: var(--card);
       border-radius: 10px;
@@ -177,12 +177,21 @@
           }
         });
         video.srcObject = stream;
-        video.play().catch(err => console.warn("No s'ha pogut reproduir automàticament:", err));
-        video.addEventListener("loadedmetadata", () => {
+
+        video.onloadedmetadata = () => {
           canvas.width = video.videoWidth || 640;
           canvas.height = video.videoHeight || 480;
+
+          const camera = new Camera(video, {
+            onFrame: async () => {
+              await faceMesh.send({ image: video });
+            },
+            width: 640,
+            height: 480
+          });
+
           setTimeout(() => camera.start(), 300);
-        });
+        };
       } catch (err) {
         alert("Error accedint a la càmera: " + err.message);
       }
@@ -227,13 +236,22 @@
       ctx.restore();
     });
 
-    const camera = new Camera(video, {
-      onFrame: async () => {
-        await faceMesh.send({ image: video });
-      },
-      width: 640,
-      height: 480
-    });
+    function distance(p1, p2) {
+      return Math.hypot(p1.x - p2.x, p1.y - p2.y);
+    }
+    function getYaw(lm) {
+      const dx = lm[454].x - lm[234].x;
+      const nx = (lm[1].x - lm[234].x) / dx;
+      return Math.max(0, Math.min(99, Math.round((nx - 0.5) * 20 + 5)));
+    }
+    function getMouthOpen(lm) {
+      return Math.max(0, Math.min(99, Math.round(distance(lm[13], lm[14]) * 100)));
+    }
+    function getEyeOpen(lm, left) {
+      const top = lm[left ? 159 : 386];
+      const bot = lm[left ? 145 : 374];
+      return distance(top, bot) * 100 > 1.5 ? 1 : 0;
+    }
 
     startCamera();
   </script>
