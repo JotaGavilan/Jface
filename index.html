@@ -197,7 +197,10 @@
     faceMesh.onResults(results => {
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+      ctx.save();
+          ctx.scale(-1, 1);
+          ctx.translate(-canvas.width, 0);
+          ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
       if (results.multiFaceLandmarks.length > 0) {
         const lm = results.multiFaceLandmarks[0];
