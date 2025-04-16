@@ -25,6 +25,6 @@ Dades totals: **6 caràcters**
 
 ## ❤️ Autor
 
-Fet per **Jose** amb ❤️ i tecnologia IA.
+Fet per **J** amb ❤️ i tecnologia IA.
 
 Projecte inspirat en: [cardboard.lofirobot.com](https://cardboard.lofirobot.com)
