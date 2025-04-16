@@ -2,7 +2,7 @@
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
-  const { FACEMESH_FACE_OVAL, FACEMESH_LEFT_EYE, FACEMESH_RIGHT_EYE, FACEMESH_LIPS } = window;
+  const { FACEMESH_TESSELATION } = window;
 
   const yawEl = document.getElementById('yaw');
   const mouthEl = document.getElementById('mouth');
