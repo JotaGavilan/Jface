@@ -62,6 +62,8 @@
     ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
     if (results.multiFaceLandmarks.length > 0) {
+        const lm = results.multiFaceLandmarks[0];
+        drawConnectors(ctx, lm, FACEMESH_TESSELATION, { color: '#00FF00', lineWidth: 1 });
       const lm = results.multiFaceLandmarks[0];
 
       const yaw = getYaw(lm);
