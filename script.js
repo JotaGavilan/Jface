@@ -33,7 +33,12 @@ document.getElementById('connectBtn').onclick = async () => {
 };
 
 const faceMesh = new FaceMesh({ locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}` });
-faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: false, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+faceMesh.setOptions({
+  maxNumFaces: 1,
+  refineLandmarks: true,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
+});
 faceMesh.onResults(results => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
@@ -45,8 +50,8 @@ faceMesh.onResults(results => {
     drawConnectors(ctx, lm, FACEMESH_TESSELATION, { color: '#00FF00', lineWidth: 0.5 });
     const yaw = Math.max(0, Math.min(99, Math.round((lm[1].x - lm[234].x) / (lm[454].x - lm[234].x) * 20 + 5)));
     const mouth = Math.max(0, Math.min(99, Math.round(Math.hypot(lm[13].x - lm[14].x, lm[13].y - lm[14].y) * 100)));
-    const eyeL = Math.hypot(lm[159].x - lm[145].x, lm[159].y - lm[145].y) * 100 > 1.5 ? 1 : 0;
-    const eyeR = Math.hypot(lm[386].x - lm[374].x, lm[386].y - lm[374].y) * 100 > 1.5 ? 1 : 0;
+    const eyeL = getEyeOpen(lm, true);
+    const eyeR = getEyeOpen(lm, false);
     yawEl.textContent = yaw;
 mouthEl.textContent = mouth;
 eyeLEl.textContent = eyeL;
@@ -70,3 +75,33 @@ async function start() {
   new Camera(video, { onFrame: async () => await faceMesh.send({ image: video }) }).start();
 }
 start();
+
+
+
+
+function distance(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function midpoint(a, b) {
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+
+function getEyeOpen(lm, left) {
+  const top1 = lm[left ? 159 : 386];
+  const top2 = lm[left ? 160 : 387];
+  const bot1 = lm[left ? 145 : 374];
+  const bot2 = lm[left ? 144 : 373];
+
+  const top = midpoint(top1, top2);
+  const bot = midpoint(bot1, bot2);
+
+  const leftCorner = lm[left ? 130 : 359];
+  const rightCorner = lm[left ? 243 : 463];
+
+  const vertical = distance(top, bot);
+  const horizontal = distance(leftCorner, rightCorner);
+  const ratio = vertical / horizontal;
+
+  return ratio > 0.25 ? 1 : 0;
+}

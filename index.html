@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>P.I.A.R II. Cap amb IA</title>
   <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
   <header>P.I.A.R II. Cap amb IA</header>
@@ -21,16 +22,26 @@
     <div id="status">⏳ Esperant connexió...</div>
   </div>
 
-  <div id="info-layer"><div class="info-box">
+  <div id="info-layer" style="display: none;"><div class="info-box">
     <h2>Informació del funcionament</h2>
+    <p>Aquesta aplicació utilitza intel·ligència artificial( <a href="https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker?hl=es-419" target="_blank">MediaPipe Face Mesh de Google</a> ) per detectar la posició del cap, l’obertura de la boca i l’estat dels ulls en temps real, i envia aquestes dades a una micro:bit a través de Bluetooth (sense emparellament).</p>
+    <p><strong>Format de dades enviades per UART (6 dígits):</strong></p>
     <ul>
       <li><strong>2 dígits:</strong> gir horitzontal del cap (00 a 99)</li>
       <li><strong>2 dígits:</strong> obertura de boca (00 a 99)</li>
       <li><strong>1 dígit:</strong> ull esquerre (0 = tancat, 1 = obert)</li>
       <li><strong>1 dígit:</strong> ull dret (0 = tancat, 1 = obert)</li>
     </ul>
-    <p>Fet per Jose amb ❤️ i tecnologia IA</p>
+    <p><strong>Exemple:</strong> <code>731010</code> → cap 73, boca 10, ull esquerre obert, dret tancat.</p>
+ 
+    <p>Aquesta app NO envia dades a cap servidor. Tot el processament es fa al navegador localment.Una vegada oberta la pàgina web pots llevar la connexió a Internet del teu mòbil per a assegurar-te que funciona sense enviar cap dada a servidors externs.</p>
+  </br>
     <p>Projecte inspirat en: <a href="https://cardboard.lofirobot.com" target="_blank">cardboard.lofirobot.com</a></p>
+ 
+    <p>Fet per J. amb ❤️ i tecnologia IA</p>
+
+    <p>IES Jorge Juan</p> 
+    <p>Alacant, 2025</p>
     <button class="close-btn" onclick="document.getElementById('info-layer').style.display='none'">Tancar</button></div>
   </div>
 

@@ -17,14 +17,14 @@ canvas {
   border-radius: 10px;
   background-color: black;
 }
-video {
+#video {
   position: absolute;
   top: 0;
   left: 0;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
+  width: 100%;
+  height: auto;
+  transform: scaleX(-1);
+  z-index: 1;
 }
 #controls {
   position: fixed;
@@ -104,6 +104,7 @@ button {
   margin: auto;
 }
 #video, #canvas {
+  z-index: 2;
   position: absolute;
   top: 0; left: 0;
   width: 100%;
@@ -115,4 +116,18 @@ button {
 }
 #canvas {
   z-index: 2;
+  z-index: 2;
+}
+
+#data-panel {
+  position: fixed;
+  top: 50px;
+  left: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.8);
+  padding: 8px 0;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #00e5ff;
+  z-index: 9999;
 }
