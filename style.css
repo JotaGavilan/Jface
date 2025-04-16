@@ -113,7 +113,7 @@ button {
   max-width: 640px;
   margin: auto;
 }
-#video, #canvas {
+#canvas {
   z-index: 2;
   position: absolute;
   top: 0; left: 0;
