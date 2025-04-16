@@ -39,32 +39,50 @@ faceMesh.setOptions({
   minDetectionConfidence: 0.5,
   minTrackingConfidence: 0.5
 });
+let ultimoEnvio = 0;
+
 faceMesh.onResults(results => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.scale(-1, 1);
   ctx.translate(-canvas.width, 0);
   ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+
   if (results.multiFaceLandmarks.length > 0) {
     const lm = results.multiFaceLandmarks[0];
     drawConnectors(ctx, lm, FACEMESH_TESSELATION, { color: '#00FF00', lineWidth: 0.5 });
+
     const yaw = Math.max(0, Math.min(99, Math.round((lm[1].x - lm[234].x) / (lm[454].x - lm[234].x) * 20 + 5)));
     const mouth = Math.max(0, Math.min(99, Math.round(Math.hypot(lm[13].x - lm[14].x, lm[13].y - lm[14].y) * 100)));
     const eyeL = getEyeOpen(lm, true);
     const eyeR = getEyeOpen(lm, false);
+
     yawEl.textContent = yaw;
-mouthEl.textContent = mouth;
-eyeLEl.textContent = eyeL;
-eyeREl.textContent = eyeR;
-if (uart) {
+    mouthEl.textContent = mouth;
+    eyeLEl.textContent = eyeL;
+    eyeREl.textContent = eyeR;
+
+    // 🔁 Enviar UART solo si ha pasado al menos 100ms desde el último envío
+    const ahora = Date.now();
+    if (uart && ahora - ultimoEnvio > 100) {
       const data = yaw.toString().padStart(2, '0') +
                    mouth.toString().padStart(2, '0') +
                    eyeL + eyeR;
-      uart.writeValue(new TextEncoder().encode(data + "\n"));
+      const mensaje = data + "\n";
+      const encoded = new TextEncoder().encode(mensaje);
+      try {
+        uart.writeValue(encoded);
+        console.log("📤 UART enviado:", mensaje, [...encoded]);
+        ultimoEnvio = ahora;
+      } catch (err) {
+        console.error("❌ Error al enviar por UART:", err);
+      }
     }
   }
+
   ctx.restore();
 });
+
 
 async function start() {
   const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
