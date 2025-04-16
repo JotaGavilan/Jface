@@ -123,3 +123,9 @@
       max-width: 250px;
     }
   
+#show-panel-btn {
+  position: fixed;
+  bottom: 170px;
+  left: 10px;
+  z-index: 9999;
+}

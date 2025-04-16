@@ -75,9 +75,9 @@
       eyeLEl.textContent = eyeL;
       eyeREl.textContent = eyeR;
 
-      const smile = Math.round(distance(lm[61], lm[291]) * 100);
-      const frown = Math.round(100 - distance(lm[70], lm[300]) * 100);
-      const brows = Math.round(distance(lm[70], lm[159]) * 100);
+      const smile = Math.round(distance(lm[61], lm[291]) * 1000);
+      const frown = Math.round((1 - distance(lm[70], lm[300])) * 1000);
+      const brows = Math.round(distance(lm[70], lm[159]) * 1000);
       const pitch = Math.round((lm[10].y - lm[152].y) * 100);
       const roll = Math.round((lm[33].y - lm[263].y) * 100);
 
@@ -88,7 +88,10 @@
       rollEl.textContent = roll;
 
       if (uartCharacteristic) {
-        const data = yaw.toString().padStart(2, '0') + mouth.toString().padStart(2, '0') + eyeL + eyeR;
+        const data = yaw.toString().padStart(2, '0') + mouth.toString().padStart(2, '0') + eyeL + eyeR +
+                       smile.toString().padStart(3, '0') +
+                       brows.toString().padStart(3, '0') +
+                       frown.toString().padStart(3, '0');
         const encoder = new TextEncoder();
         uartCharacteristic.writeValue(encoder.encode(data + "\\n"));
       }
@@ -97,6 +100,8 @@
       drawConnectors(ctx, lm, FACEMESH_LEFT_EYE, { color: '#0000FF', lineWidth: 1 });
       drawConnectors(ctx, lm, FACEMESH_RIGHT_EYE, { color: '#0000FF', lineWidth: 1 });
       drawConnectors(ctx, lm, FACEMESH_LIPS, { color: '#FF0000', lineWidth: 2 });
+        drawConnectors(ctx, lm, FACEMESH_RIGHT_EYEBROW, { color: '#FFA500', lineWidth: 2 });
+        drawConnectors(ctx, lm, FACEMESH_LEFT_EYEBROW, { color: '#FFA500', lineWidth: 2 });
     }
 
     ctx.restore();
