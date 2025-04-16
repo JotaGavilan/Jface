@@ -92,6 +92,7 @@ button {
   box-shadow: 0 0 15px rgba(0,0,0,0.8);
 
   z-index: 10002; position: relative;
+}
 .info-box ul {
   padding-left: 1rem;
 }
