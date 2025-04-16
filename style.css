@@ -53,7 +53,7 @@ button {
   height: 100vh;
   background: rgba(0, 0, 0, 0.95);
   color: white;
-  z-index: 9999;
+  z-index: 10001;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -75,7 +75,7 @@ button {
   height: 100vh;
   background: rgba(0, 0, 0, 0.95);
   color: white;
-  z-index: 9999;
+  z-index: 10001;
   overflow: hidden;
   display: flex;
   align-items: center;
