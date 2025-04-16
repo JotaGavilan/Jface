@@ -7,14 +7,17 @@ const yawEl = document.getElementById('yaw');
 const mouthEl = document.getElementById('mouth');
 const eyeLEl = document.getElementById('eyeL');
 const eyeREl = document.getElementById('eyeR');
+let ultimoEnvio = 0;
 
 document.getElementById('fullscreenBtn').onclick = () => {
   if (!document.fullscreenElement) document.documentElement.requestFullscreen();
   else document.exitFullscreen();
 };
+
 document.getElementById('infoBtn').onclick = () => {
   document.getElementById('info-layer').style.display = 'block';
 };
+
 document.getElementById('connectBtn').onclick = async () => {
   try {
     statusEl.textContent = '🔍 Buscant micro:bit...';
@@ -26,6 +29,7 @@ document.getElementById('connectBtn').onclick = async () => {
     const service = await server.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
     uart = await service.getCharacteristic('6e400002-b5a3-f393-e0a9-e50e24dcca9e');
     statusEl.textContent = '✅ micro:bit connectada';
+    console.log("UART conectada");
   } catch (e) {
     console.error(e);
     statusEl.textContent = '❌ Error en la connexió';
@@ -39,9 +43,8 @@ faceMesh.setOptions({
   minDetectionConfidence: 0.5,
   minTrackingConfidence: 0.5
 });
-let ultimoEnvio = 0;
 
-faceMesh.onResults(results => {
+faceMesh.onResults(async results => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.scale(-1, 1);
@@ -62,7 +65,6 @@ faceMesh.onResults(results => {
     eyeLEl.textContent = eyeL;
     eyeREl.textContent = eyeR;
 
-    // 🔁 Enviar UART solo si ha pasado al menos 100ms desde el último envío
     const ahora = Date.now();
     if (uart && ahora - ultimoEnvio > 100) {
       const data = yaw.toString().padStart(2, '0') +
@@ -71,7 +73,7 @@ faceMesh.onResults(results => {
       const mensaje = data + "\n";
       const encoded = new TextEncoder().encode(mensaje);
       try {
-        uart.writeValue(encoded);
+        await uart.writeValue(encoded);
         console.log("📤 UART enviado:", mensaje, [...encoded]);
         ultimoEnvio = ahora;
       } catch (err) {
@@ -83,7 +85,6 @@ faceMesh.onResults(results => {
   ctx.restore();
 });
 
-
 async function start() {
   const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
   video.srcObject = stream;
@@ -92,10 +93,8 @@ async function start() {
   canvas.height = video.videoHeight;
   new Camera(video, { onFrame: async () => await faceMesh.send({ image: video }) }).start();
 }
+
 start();
-
-
-
 
 function distance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y);
