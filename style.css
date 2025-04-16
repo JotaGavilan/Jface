@@ -141,3 +141,10 @@
   left: 10px;
   z-index: 9999;
 }
+
+#show-panel-btn {
+  position: fixed;
+  bottom: 180px;
+  left: 10px;
+  z-index: 9999;
+}

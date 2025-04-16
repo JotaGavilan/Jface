@@ -77,7 +77,7 @@
 
       const smile = Math.round(distance(lm[61], lm[291]) * 10);
       const frown = Math.round((1 - distance(lm[70], lm[300])) * 10);
-      const brows = Math.round(distance(lm[70], lm[159]) * 1000);
+      const brows = Math.min(10, Math.max(0, Math.round(distance(lm[70], lm[159]) * 50)));
       const pitch = Math.round((lm[10].y - lm[152].y) * 100);
       const roll = Math.round((lm[33].y - lm[263].y) * 100);
 
