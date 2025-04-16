@@ -2,12 +2,17 @@ const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const statusEl = document.getElementById('status');
-let uart = null;
+let uBitDevice;
+let rxCharacteristic = null;
 const yawEl = document.getElementById('yaw');
 const mouthEl = document.getElementById('mouth');
 const eyeLEl = document.getElementById('eyeL');
 const eyeREl = document.getElementById('eyeR');
 let ultimoEnvio = 0;
+
+const UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+const UART_TX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+const UART_RX_CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 
 document.getElementById('fullscreenBtn').onclick = () => {
   if (!document.fullscreenElement) document.documentElement.requestFullscreen();
@@ -21,20 +26,42 @@ document.getElementById('infoBtn').onclick = () => {
 document.getElementById('connectBtn').onclick = async () => {
   try {
     statusEl.textContent = '🔍 Buscant micro:bit...';
-    const device = await navigator.bluetooth.requestDevice({
+    uBitDevice = await navigator.bluetooth.requestDevice({
       filters: [{ namePrefix: "BBC micro:bit" }],
-      optionalServices: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e']
+      optionalServices: [UART_SERVICE_UUID]
     });
-    const server = await device.gatt.connect();
-    const service = await server.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
-    uart = await service.getCharacteristic('6e400003-b5a3-f393-e0a9-e50e24dcca9e'); // CAMBIO: usar RX
+
+    uBitDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
+    const server = await uBitDevice.gatt.connect();
+    const service = await server.getPrimaryService(UART_SERVICE_UUID);
+
+    rxCharacteristic = await service.getCharacteristic(UART_TX_CHARACTERISTIC_UUID);
+    await rxCharacteristic.startNotifications();
+    rxCharacteristic.addEventListener("characteristicvaluechanged", onTxCharacteristicValueChanged);
+
+    const tx = await service.getCharacteristic(UART_RX_CHARACTERISTIC_UUID); // para enviar datos
+
     statusEl.textContent = '✅ micro:bit connectada';
-    console.log("UART conectada");
+    uart = tx;
   } catch (e) {
     console.error(e);
     statusEl.textContent = '❌ Error en la connexió';
   }
 };
+
+function onTxCharacteristicValueChanged(event) {
+  let receivedData = new Uint8Array(event.target.value.buffer);
+  const receivedString = String.fromCharCode(...receivedData);
+  console.log("📥 Received from micro:bit:", receivedString);
+}
+
+function onDisconnected(event) {
+  let device = event.target;
+  console.log(`🔌 Disconnected from ${device.name}`);
+  rxCharacteristic = null;
+  uart = null;
+}
 
 const faceMesh = new FaceMesh({ locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}` });
 faceMesh.setOptions({
