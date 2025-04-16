@@ -148,3 +148,15 @@
   left: 10px;
   z-index: 9999;
 }
+
+#show-panel-btn {
+  position: fixed;
+  bottom: 10vh;
+  left: 10px;
+  z-index: 9999;
+  background: #00bcd4;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 1.2rem;
+}
