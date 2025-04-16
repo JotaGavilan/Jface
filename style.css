@@ -86,3 +86,23 @@ button {
   margin-top: 1rem;
   border-radius: 5px;
 }
+
+#video-container {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  margin: auto;
+}
+#video, #canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: auto;
+}
+#video {
+  transform: scaleX(-1);
+  z-index: 1;
+}
+#canvas {
+  z-index: 2;
+}
