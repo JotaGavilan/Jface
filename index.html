@@ -1,425 +1,59 @@
 <!DOCTYPE html>
+
 <html lang="ca">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>
-   P.I.A.R II. Cap amb IA
-  </title>
-  <style>
-   :root {
-      --primary: #00bcd4;
-      --background: #1e1e2f;
-      --card: #2a2a40;
-      --text: #ffffff;
-      --accent: #3f51b5;
-      --header-gray: #cccccc;
-    }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--background);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-    header {
-      background: transparent;
-      color: var(--header-gray);
-      padding: 1rem;
-      text-align: left;
-      width: 100%;
-      font-size: 1.5rem;
-    }
-    #camera-container {
-      position: relative;
-      width: 100%;
-      max-width: 480px;
-      margin-top: 0.5rem;
-      flex: 1;
-    }
-    canvas {
-      width: 100%;
-      height: auto;
-      min-height: 240px;
-      border-radius: 10px;
-      background-color: black;
-    }
-    video {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-      pointer-events: none;
-    }
-    #info-panel {
-      background: var(--card);
-      border-radius: 10px 10px 0 0;
-      padding: 1rem;
-      width: 100%;
-      max-width: 720px;
-      box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
-      z-index: 2;
-      position: fixed;
-      bottom: 0;
-      box-sizing: border-box;
-    }
-    #info-panel p {
-      margin: 0.25rem 0;
-    }
-    #buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      justify-content: space-between;
-      margin-top: 0.5rem;
-    }
-    button {
-      font-size: 1rem;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      flex: 1;
-      min-width: 100px;
-    }
-    #connectBtn { background-color: var(--primary); color: white; }
-    #infoBtn { background-color: #444; color: white; }
-    #fullscreenBtn { background-color: #4caf50; color: white; }
-    #fullscreenBtn::before { content: '\21F1\21F2'; margin-right: 5px; }
-    #status {
-      margin-top: 0.5rem;
-      font-weight: bold;
-    }
-    #info-layer {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.9);
-      color: white;
-      font-size: 1rem;
-      padding: 2rem;
-      z-index: 10;
-      box-sizing: border-box;
-      overflow-y: auto;
-    }
-    #info-layer button {
-      margin-top: 1rem;
-      background: #f44336;
-      color: white;
-    }
-    #info-layer a {
-      color: #4fc3f7;
-    }
-    #panel-anàlisi {
-      position: absolute;
-      bottom: 100px;
-      right: 10px;
-      background: rgba(42,42,64,0.95);
-      color: white;
-      padding: 10px;
-      border-radius: 10px;
-      font-size: 0.85rem;
-      z-index: 5;
-      display: none;
-      max-width: 250px;
-    }
-  </style>
- </head>
- <body>
-  <header>
-   P.I.A.R II. Cap amb IA
-  </header>
-  <div id="camera-container">
-   <video autoplay="" id="video" muted="" playsinline="">
-   </video>
-   <canvas id="canvas">
-   </canvas>
-  </div>
-  <div id="info-panel">
-   <p>
-    <strong>
-     Gir horitzontal:
-    </strong>
-    <span id="yaw">
-     0
-    </span>
-    &nbsp;&nbsp;
-    <strong>
-     Boca:
-    </strong>
-    <span id="mouth">
-     0
-    </span>
-    &nbsp;&nbsp;
-    <strong>
-     Ull E:
-    </strong>
-    <span id="eyeL">
-     0
-    </span>
-    &nbsp;&nbsp;
-    <strong>
-     Ull D:
-    </strong>
-    <span id="eyeR">
-     0
-    </span>
-   </p>
-   <div id="buttons">
-    <button id="connectBtn">
-     🔗 Connectar
-    </button>
-    <button id="infoBtn" onclick="document.getElementById('info-layer').style.display='block'">
-     ℹ️ Informaci&oacute;
-    </button>
-    <button id="fullscreenBtn" onclick="toggleFullscreen()">
-     Pantalla completa
-    </button>
-   </div>
-   <div id="status">
-    ⏳ Esperant connexi&oacute;...
-   </div>
-  </div>
-  <div id="panel-an&agrave;lisi">
-   <button onclick="document.getElementById('panel-an&agrave;lisi').style.display='none'">
-    ✕
-   </button>
-   <h4>
-    An&agrave;lisi facial
-   </h4>
-   <p>
-    <strong>
-     Somriure:
-    </strong>
-    <span id="smile">
-     0
-    </span>
-   </p>
-   <p>
-    <strong>
-     Front arrugat:
-    </strong>
-    <span id="frown">
-     0
-    </span>
-   </p>
-   <p>
-    <strong>
-     Celles al&ccedil;ades:
-    </strong>
-    <span id="brows">
-     0
-    </span>
-   </p>
-   <p>
-    <strong>
-     Cap amunt/avall:
-    </strong>
-    <span id="pitch">
-     0
-    </span>
-   </p>
-   <p>
-    <strong>
-     Cap inclinat:
-    </strong>
-    <span id="roll">
-     0
-    </span>
-   </p>
-  </div>
-  <button id="show-panel-btn" onclick="document.getElementById('panel-an&agrave;lisi').style.display='block'" style="position:absolute;bottom:110px;left:10px;">
-   ➕ Mostra an&agrave;lisi
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>P.I.A.R II. Cap amb IA</title>
+
+<link href="style.css" rel="stylesheet"/></head>
+<body>
+<header>P.I.A.R II. Cap amb IA</header>
+<div id="camera-container">
+<video autoplay="" id="video" muted="" playsinline=""></video>
+<canvas id="canvas"></canvas>
+</div>
+<div id="info-panel">
+<p><strong>Gir horitzontal:</strong> <span id="yaw">0</span>   
+       <strong>Boca:</strong> <span id="mouth">0</span>   
+       <strong>Ull E:</strong> <span id="eyeL">0</span>   
+       <strong>Ull D:</strong> <span id="eyeR">0</span></p>
+<div id="buttons">
+<button id="connectBtn">🔗 Connectar</button>
+<button id="infoBtn" onclick="document.getElementById('info-layer').style.display='block'">ℹ️ Informació</button>
+<button id="fullscreenBtn" onclick="toggleFullscreen()">Pantalla completa</button>
+</div>
+<div id="status">⏳ Esperant connexió...</div>
+</div>
+<div id="panel-anàlisi">
+<button onclick="document.getElementById('panel-anàlisi').style.display='none'">✕</button>
+<h4>Anàlisi facial</h4>
+<p><strong>Somriure:</strong> <span id="smile">0</span></p>
+<p><strong>Front arrugat:</strong> <span id="frown">0</span></p>
+<p><strong>Celles alçades:</strong> <span id="brows">0</span></p>
+<p><strong>Cap amunt/avall:</strong> <span id="pitch">0</span></p>
+<p><strong>Cap inclinat:</strong> <span id="roll">0</span></p>
+</div>
+<button onclick="document.getElementById('panel-anàlisi').style.display='block'" style="position:absolute;bottom:110px;left:10px;">
+    😊 Mostra anàlisi
   </button>
-  <div id="info-layer">
-   <h2>
-    Informaci&oacute; del funcionament
-   </h2>
-   <p>
-    Aquesta aplicaci&oacute; utilitza intel&middot;lig&egrave;ncia artificial per detectar la posici&oacute; del cap, l&rsquo;obertura de la boca i l&rsquo;estat dels ulls en temps real, i envia aquestes dades a una micro:bit a trav&eacute;s de Bluetooth (sense emparellament).
-   </p>
-   <p>
-    <strong>
-     Format de dades enviades per UART (6 d&iacute;gits):
-    </strong>
-   </p>
-   <ul>
-    <li>
-     <strong>
-      2 d&iacute;gits:
-     </strong>
-     gir horitzontal del cap (00 a 99)
-    </li>
-    <li>
-     <strong>
-      2 d&iacute;gits:
-     </strong>
-     obertura de boca (00 a 99)
-    </li>
-    <li>
-     <strong>
-      1 d&iacute;git:
-     </strong>
-     ull esquerre (0 = tancat, 1 = obert)
-    </li>
-    <li>
-     <strong>
-      1 d&iacute;git:
-     </strong>
-     ull dret (0 = tancat, 1 = obert)
-    </li>
-    <li>
-     <strong>
-      3 d&iacute;gits:
-     </strong>
-     somriure (000&ndash;999)
-    </li>
-    <li>
-     <strong>
-      3 d&iacute;gits:
-     </strong>
-     celles al&ccedil;ades (000&ndash;999)
-    </li>
-    <li>
-     <strong>
-      3 d&iacute;gits:
-     </strong>
-     front arrugat (000&ndash;999)
-    </li>
-   </ul>
-   <p>
-    <strong>
-     Exemple:
-    </strong>
-    <code>
-     731011
-    </code>
-   </p>
-   <p>
-    Projecte inspirat en:
-    <a href="https://cardboard.lofirobot.com/face-app-info/" target="_blank">
-     cardboard.lofirobot.com
-    </a>
-   </p>
-   <p>
-    Fet per Jose amb ❤️ i IA
-   </p>
-   <button onclick="document.getElementById('info-layer').style.display='none'">
-    Tancar
-   </button>
+<div id="info-layer">
+<h2>Informació del funcionament</h2>
+<p>Aquesta aplicació utilitza intel·ligència artificial per detectar la posició del cap, l’obertura de la boca i l’estat dels ulls en temps real, i envia aquestes dades a una micro:bit a través de Bluetooth (sense emparellament).</p>
+<p><strong>Format de dades enviades per UART (6 dígits):</strong></p>
+<ul>
+<li><strong>2 dígits:</strong> gir horitzontal del cap (00 a 99)</li>
+<li><strong>2 dígits:</strong> obertura de boca (00 a 99)</li>
+<li><strong>1 dígit:</strong> ull esquerre (0 = tancat, 1 = obert)</li>
+<li><strong>1 dígit:</strong> ull dret (0 = tancat, 1 = obert)</li>
+</ul>
+<p><strong>Exemple:</strong> <code>731011</code></p>
+<p>Projecte inspirat en: <a href="https://cardboard.lofirobot.com/face-app-info/" target="_blank">cardboard.lofirobot.com</a></p>
+<button onclick="document.getElementById('info-layer').style.display='none'">Tancar</button>
+</div>
 
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js">
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js">
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js">
-  </script>
- <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const yawEl = document.getElementById('yaw');
-    const mouthEl = document.getElementById('mouth');
-    const eyeLEl = document.getElementById('eyeL');
-    const eyeREl = document.getElementById('eyeR');
-    const smileEl = document.getElementById('smile');
-    const frownEl = document.getElementById('frown');
-    const browsEl = document.getElementById('brows');
-    const pitchEl = document.getElementById('pitch');
-    const rollEl = document.getElementById('roll');
-    let uartCharacteristic = null;
 
-    const { drawConnectors } = window;
-    const { FACEMESH_FACE_OVAL, FACEMESH_LEFT_EYE, FACEMESH_RIGHT_EYE, FACEMESH_LIPS, FACEMESH_LEFT_EYEBROW, FACEMESH_RIGHT_EYEBROW } = window;
 
-    function distance(p1, p2) {
-      return Math.hypot(p1.x - p2.x, p1.y - p2.y);
-    }
 
-    function getYaw(lm) {
-      const dx = lm[454].x - lm[234].x;
-      const nx = (lm[1].x - lm[234].x) / dx;
-      return Math.max(0, Math.min(99, Math.round((nx - 0.5) * 20 + 5)));
-    }
-
-    function getMouthOpen(lm) {
-      return Math.max(0, Math.min(99, Math.round(distance(lm[13], lm[14]) * 100)));
-    }
-
-    function getEyeOpen(lm, left) {
-      const top = lm[left ? 159 : 386];
-      const bot = lm[left ? 145 : 374];
-      return distance(top, bot) * 100 > 1.5 ? 1 : 0;
-    }
-
-    function scaled(val, mult = 1000) {
-      return Math.max(0, Math.min(999, Math.round(val * mult)));
-    }
-
-    const faceMesh = new FaceMesh({
-      locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
-    });
-    faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
-
-    faceMesh.onResults(results => {
-      ctx.save();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.scale(-1, 1);
-      ctx.translate(-canvas.width, 0);
-      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-
-      if (results.multiFaceLandmarks.length > 0) {
-        const lm = results.multiFaceLandmarks[0];
-        const yaw = getYaw(lm);
-        const mouth = getMouthOpen(lm);
-        const eyeL = getEyeOpen(lm, true);
-        const eyeR = getEyeOpen(lm, false);
-
-        yawEl.textContent = yaw;
-        mouthEl.textContent = mouth;
-        eyeLEl.textContent = eyeL;
-        eyeREl.textContent = eyeR;
-
-        const smile = scaled(distance(lm[61], lm[291]));
-        const frown = scaled(1 - distance(lm[70], lm[300]));
-        const brows = scaled(distance(lm[70], lm[159]));
-        const pitch = Math.round((lm[10].y - lm[152].y) * 100);
-        const roll = Math.round((lm[33].y - lm[263].y) * 100);
-
-        smileEl.textContent = smile;
-        frownEl.textContent = frown;
-        browsEl.textContent = brows;
-        pitchEl.textContent = pitch;
-        rollEl.textContent = roll;
-
-        if (uartCharacteristic) {
-          const data = yaw.toString().padStart(2, '0') +
-                       mouth.toString().padStart(2, '0') +
-                       eyeL + eyeR +
-                       smile.toString().padStart(3, '0') +
-                       brows.toString().padStart(3, '0') +
-                       frown.toString().padStart(3, '0');
-          const encoder = new TextEncoder();
-          uartCharacteristic.writeValue(encoder.encode(data + "\n"));
-        }
-
-        drawConnectors(ctx, lm, FACEMESH_FACE_OVAL, { color: '#00FF00', lineWidth: 2 });
-        drawConnectors(ctx, lm, FACEMESH_LEFT_EYE, { color: '#0000FF', lineWidth: 1 });
-        drawConnectors(ctx, lm, FACEMESH_RIGHT_EYE, { color: '#0000FF', lineWidth: 1 });
-        drawConnectors(ctx, lm, FACEMESH_LIPS, { color: '#FF0000', lineWidth: 2 });
-        drawConnectors(ctx, lm, FACEMESH_LEFT_EYEBROW, { color: '#FFA500', lineWidth: 2 });
-        drawConnectors(ctx, lm, FACEMESH_RIGHT_EYEBROW, { color: '#FFA500', lineWidth: 2 });
-      }
-      ctx.restore();
-    });
-  </script>
- </body>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script><script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script><script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script><script src="script.js"></script></body>
 </html>
