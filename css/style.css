@@ -145,10 +145,14 @@ button {
   top: 50px;
   left: 0;
   width: 100%;
-  background: rgba(0,0,0,0.8);
   padding: 8px 0;
   font-size: 1.2em;
   font-weight: bold;
   color: #00e5ff;
   z-index: 9999;
+}
+#data-panel {
+  display: inline-block;
+    padding: 0.5em;
+  border-radius: 0.3em;
 }
