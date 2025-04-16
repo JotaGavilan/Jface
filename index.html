@@ -8,8 +8,8 @@
 </head>
 <body>
   <header>P.I.A.R II. Cap amb IA</header>
-  <video id="video" autoplay muted playsinline></video>
-  <canvas id="canvas"></canvas>
+    <canvas id="canvas"></canvas>
+<div id="data-panel">Yaw: <span id="yaw">--</span> | Boca: <span id="mouth">--</span> | Ull E: <span id="eyeL">-</span> | Ull D: <span id="eyeR">-</span></div>
 
   <div id="controls">
     <button id="connectBtn">🔵 Connectar</button>
@@ -18,7 +18,7 @@
     <div id="status">⏳ Esperant connexió...</div>
   </div>
 
-  <div id="info-layer">
+  <div id="info-layer"><div class="info-box">
     <h2>Informació del funcionament</h2>
     <ul>
       <li><strong>2 dígits:</strong> gir horitzontal del cap (00 a 99)</li>
@@ -28,7 +28,7 @@
     </ul>
     <p>Fet per Jose amb ❤️ i tecnologia IA</p>
     <p>Projecte inspirat en: <a href="https://cardboard.lofirobot.com" target="_blank">cardboard.lofirobot.com</a></p>
-    <button onclick="document.getElementById('info-layer').style.display='none'">Tancar</button>
+    <button class="close-btn" onclick="document.getElementById('info-layer').style.display='none'">Tancar</button></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>

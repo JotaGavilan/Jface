@@ -3,6 +3,10 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const statusEl = document.getElementById('status');
 let uart = null;
+const yawEl = document.getElementById('yaw');
+const mouthEl = document.getElementById('mouth');
+const eyeLEl = document.getElementById('eyeL');
+const eyeREl = document.getElementById('eyeR');
 
 document.getElementById('fullscreenBtn').onclick = () => {
   if (!document.fullscreenElement) document.documentElement.requestFullscreen();
@@ -43,7 +47,11 @@ faceMesh.onResults(results => {
     const mouth = Math.max(0, Math.min(99, Math.round(Math.hypot(lm[13].x - lm[14].x, lm[13].y - lm[14].y) * 100)));
     const eyeL = Math.hypot(lm[159].x - lm[145].x, lm[159].y - lm[145].y) * 100 > 1.5 ? 1 : 0;
     const eyeR = Math.hypot(lm[386].x - lm[374].x, lm[386].y - lm[374].y) * 100 > 1.5 ? 1 : 0;
-    if (uart) {
+    yawEl.textContent = yaw;
+mouthEl.textContent = mouth;
+eyeLEl.textContent = eyeL;
+eyeREl.textContent = eyeR;
+if (uart) {
       const data = yaw.toString().padStart(2, '0') +
                    mouth.toString().padStart(2, '0') +
                    eyeL + eyeR;
