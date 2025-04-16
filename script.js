@@ -10,6 +10,7 @@ const mouthEl = document.getElementById('mouth');
 const eyeLEl = document.getElementById('eyeL');
 const eyeREl = document.getElementById('eyeR');
 let ultimoEnvio = 0;
+let ultimoMensaje = "";
 
 const UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
 const UART_TX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
@@ -100,10 +101,12 @@ faceMesh.onResults(results => {
 
     if (uart) {
       const ahora = Date.now();
-      if (ahora - ultimoEnvio > 100) {
-        const data = yaw.toString().padStart(2, '0') +
-                     mouth.toString().padStart(2, '0') +
-                     eyeL + eyeR;
+      const data = yaw.toString().padStart(2, '0') +
+                   mouth.toString().padStart(2, '0') +
+                   eyeL + eyeR;
+
+      if (data !== ultimoMensaje && ahora - ultimoEnvio > 100) {
+        ultimoMensaje = data;
         const mensaje = data + "\n";
         const encoded = new TextEncoder().encode(mensaje);
         queueGattOperation(() => uart.writeValue(encoded)
