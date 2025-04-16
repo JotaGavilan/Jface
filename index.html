@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ca">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>P.I.A.R II. Cap amb IA</title>
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   P.I.A.R II. Cap amb IA
+  </title>
   <style>
-    :root {
+   :root {
       --primary: #00bcd4;
       --background: #1e1e2f;
       --card: #2a2a40;
@@ -129,61 +131,198 @@
       max-width: 250px;
     }
   </style>
-</head>
-<body>
-  <header>P.I.A.R II. Cap amb IA</header>
+ </head>
+ <body>
+  <header>
+   P.I.A.R II. Cap amb IA
+  </header>
   <div id="camera-container">
-    <video id="video" autoplay muted playsinline></video>
-    <canvas id="canvas"></canvas>
+   <video autoplay="" id="video" muted="" playsinline="">
+   </video>
+   <canvas id="canvas">
+   </canvas>
   </div>
-
   <div id="info-panel">
-    <p><strong>Gir horitzontal:</strong> <span id="yaw">0</span> &nbsp;&nbsp;
-       <strong>Boca:</strong> <span id="mouth">0</span> &nbsp;&nbsp;
-       <strong>Ull E:</strong> <span id="eyeL">0</span> &nbsp;&nbsp;
-       <strong>Ull D:</strong> <span id="eyeR">0</span></p>
-    <div id="buttons">
-      <button id="connectBtn">🔗 Connectar</button>
-      <button id="infoBtn" onclick="document.getElementById('info-layer').style.display='block'">ℹ️ Informació</button>
-      <button id="fullscreenBtn" onclick="toggleFullscreen()">Pantalla completa</button>
-    </div>
-    <div id="status">⏳ Esperant connexió...</div>
+   <p>
+    <strong>
+     Gir horitzontal:
+    </strong>
+    <span id="yaw">
+     0
+    </span>
+    &nbsp;&nbsp;
+    <strong>
+     Boca:
+    </strong>
+    <span id="mouth">
+     0
+    </span>
+    &nbsp;&nbsp;
+    <strong>
+     Ull E:
+    </strong>
+    <span id="eyeL">
+     0
+    </span>
+    &nbsp;&nbsp;
+    <strong>
+     Ull D:
+    </strong>
+    <span id="eyeR">
+     0
+    </span>
+   </p>
+   <div id="buttons">
+    <button id="connectBtn">
+     🔗 Connectar
+    </button>
+    <button id="infoBtn" onclick="document.getElementById('info-layer').style.display='block'">
+     ℹ️ Informaci&oacute;
+    </button>
+    <button id="fullscreenBtn" onclick="toggleFullscreen()">
+     Pantalla completa
+    </button>
+   </div>
+   <div id="status">
+    ⏳ Esperant connexi&oacute;...
+   </div>
   </div>
-
-  <div id="panel-anàlisi">
-    <button onclick="document.getElementById('panel-anàlisi').style.display='none'">✕</button>
-    <h4>Anàlisi facial</h4>
-    <p><strong>Somriure:</strong> <span id="smile">0</span></p>
-    <p><strong>Front arrugat:</strong> <span id="frown">0</span></p>
-    <p><strong>Celles alçades:</strong> <span id="brows">0</span></p>
-    <p><strong>Cap amunt/avall:</strong> <span id="pitch">0</span></p>
-    <p><strong>Cap inclinat:</strong> <span id="roll">0</span></p>
+  <div id="panel-an&agrave;lisi">
+   <button onclick="document.getElementById('panel-an&agrave;lisi').style.display='none'">
+    ✕
+   </button>
+   <h4>
+    An&agrave;lisi facial
+   </h4>
+   <p>
+    <strong>
+     Somriure:
+    </strong>
+    <span id="smile">
+     0
+    </span>
+   </p>
+   <p>
+    <strong>
+     Front arrugat:
+    </strong>
+    <span id="frown">
+     0
+    </span>
+   </p>
+   <p>
+    <strong>
+     Celles al&ccedil;ades:
+    </strong>
+    <span id="brows">
+     0
+    </span>
+   </p>
+   <p>
+    <strong>
+     Cap amunt/avall:
+    </strong>
+    <span id="pitch">
+     0
+    </span>
+   </p>
+   <p>
+    <strong>
+     Cap inclinat:
+    </strong>
+    <span id="roll">
+     0
+    </span>
+   </p>
   </div>
-
-  <button onclick="document.getElementById('panel-anàlisi').style.display='block'" style="position:absolute;bottom:110px;left:10px;">
-    😊 Mostra anàlisi
+  <button id="show-panel-btn" onclick="document.getElementById('panel-an&agrave;lisi').style.display='block'" style="position:absolute;bottom:110px;left:10px;">
+   ➕ Mostra an&agrave;lisi
   </button>
-
   <div id="info-layer">
-    <h2>Informació del funcionament</h2>
-    <p>Aquesta aplicació utilitza intel·ligència artificial per detectar la posició del cap, l’obertura de la boca i l’estat dels ulls en temps real, i envia aquestes dades a una micro:bit a través de Bluetooth (sense emparellament).</p>
-    <p><strong>Format de dades enviades per UART (6 dígits):</strong></p>
-    <ul>
-      <li><strong>2 dígits:</strong> gir horitzontal del cap (00 a 99)</li>
-      <li><strong>2 dígits:</strong> obertura de boca (00 a 99)</li>
-      <li><strong>1 dígit:</strong> ull esquerre (0 = tancat, 1 = obert)</li>
-      <li><strong>1 dígit:</strong> ull dret (0 = tancat, 1 = obert)</li>
-    </ul>
-    <p><strong>Exemple:</strong> <code>731011</code></p>
-    <p>Projecte inspirat en: <a href="https://cardboard.lofirobot.com/face-app-info/" target="_blank">cardboard.lofirobot.com</a></p>
-    <button onclick="document.getElementById('info-layer').style.display='none'">Tancar</button>
+   <h2>
+    Informaci&oacute; del funcionament
+   </h2>
+   <p>
+    Aquesta aplicaci&oacute; utilitza intel&middot;lig&egrave;ncia artificial per detectar la posici&oacute; del cap, l&rsquo;obertura de la boca i l&rsquo;estat dels ulls en temps real, i envia aquestes dades a una micro:bit a trav&eacute;s de Bluetooth (sense emparellament).
+   </p>
+   <p>
+    <strong>
+     Format de dades enviades per UART (6 d&iacute;gits):
+    </strong>
+   </p>
+   <ul>
+    <li>
+     <strong>
+      2 d&iacute;gits:
+     </strong>
+     gir horitzontal del cap (00 a 99)
+    </li>
+    <li>
+     <strong>
+      2 d&iacute;gits:
+     </strong>
+     obertura de boca (00 a 99)
+    </li>
+    <li>
+     <strong>
+      1 d&iacute;git:
+     </strong>
+     ull esquerre (0 = tancat, 1 = obert)
+    </li>
+    <li>
+     <strong>
+      1 d&iacute;git:
+     </strong>
+     ull dret (0 = tancat, 1 = obert)
+    </li>
+    <li>
+     <strong>
+      3 d&iacute;gits:
+     </strong>
+     somriure (000&ndash;999)
+    </li>
+    <li>
+     <strong>
+      3 d&iacute;gits:
+     </strong>
+     celles al&ccedil;ades (000&ndash;999)
+    </li>
+    <li>
+     <strong>
+      3 d&iacute;gits:
+     </strong>
+     front arrugat (000&ndash;999)
+    </li>
+   </ul>
+   <p>
+    <strong>
+     Exemple:
+    </strong>
+    <code>
+     731011
+    </code>
+   </p>
+   <p>
+    Projecte inspirat en:
+    <a href="https://cardboard.lofirobot.com/face-app-info/" target="_blank">
+     cardboard.lofirobot.com
+    </a>
+   </p>
+   <button onclick="document.getElementById('info-layer').style.display='none'">
+    Tancar
+   </button>
+   <p>
+    Fet per Jose amb ❤️ i IA
+   </p>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-<script>
-  const video = document.getElementById('video');
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js">
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js">
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js">
+  </script>
+  <script>
+   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
   const { drawConnectors } = window;
@@ -334,7 +473,6 @@
   }
 
   startCamera();
-</script>
-
-</body>
+  </script>
+ </body>
 </html>
