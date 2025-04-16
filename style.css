@@ -10,12 +10,23 @@ header {
   padding: 10px;
   font-size: 1.5em;
 }
-video, canvas {
-  display: block;
-  margin: auto;
-  max-width: 100vw;
-  max-height: 60vh;
-}
+    
+    canvas {
+      width: 100%;
+      height: auto;
+      min-height: 240px;
+      border-radius: 10px;
+      background-color: black;
+    }
+    video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
 #controls {
   position: fixed;
   bottom: 0;
