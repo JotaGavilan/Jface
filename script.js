@@ -15,6 +15,12 @@ const UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
 const UART_TX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
 const UART_RX_CHARACTERISTIC_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 
+let queue = Promise.resolve();
+function queueGattOperation(operation) {
+  queue = queue.then(operation, operation);
+  return queue;
+}
+
 document.getElementById('fullscreenBtn').onclick = () => {
   if (!document.fullscreenElement) document.documentElement.requestFullscreen();
   else document.exitFullscreen();
@@ -92,19 +98,23 @@ faceMesh.onResults(results => {
     eyeLEl.textContent = eyeL;
     eyeREl.textContent = eyeR;
 
-    const ahora = Date.now();
-    if (uart && ahora - ultimoEnvio > 100) {
-      const data = yaw.toString().padStart(2, '0') +
-                   mouth.toString().padStart(2, '0') +
-                   eyeL + eyeR;
-      const mensaje = data + "\n";
-      const encoded = new TextEncoder().encode(mensaje);
-      uart.writeValue(encoded).then(() => {
-        console.log("📤 UART enviado:", mensaje, [...encoded]);
-        ultimoEnvio = ahora;
-      }).catch(err => {
-        console.error("❌ Error al enviar por UART:", err);
-      });
+    if (uart) {
+      const ahora = Date.now();
+      if (ahora - ultimoEnvio > 100) {
+        const data = yaw.toString().padStart(2, '0') +
+                     mouth.toString().padStart(2, '0') +
+                     eyeL + eyeR;
+        const mensaje = data + "\n";
+        const encoded = new TextEncoder().encode(mensaje);
+        queueGattOperation(() => uart.writeValue(encoded)
+          .then(() => {
+            console.log("📤 UART enviado:", mensaje, [...encoded]);
+            ultimoEnvio = ahora;
+          })
+          .catch(err => {
+            console.error("❌ Error al enviar por UART:", err);
+          }));
+      }
     }
   }
 
