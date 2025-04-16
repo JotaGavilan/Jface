@@ -1,5 +1,4 @@
-
-    :root {
+:root {
       --primary: #00bcd4;
       --background: #1e1e2f;
       --card: #2a2a40;
@@ -123,7 +122,7 @@
       max-width: 250px;
     }
   
-#show-panel-btn {
+#x {
   position: fixed;
   bottom: 170px;
   left: 10px;
@@ -135,21 +134,21 @@
   backdrop-filter: blur(5px);
   z-index: 9999;
 }
-#show-panel-btn {
+#x {
   position: fixed;
   bottom: 180px;
   left: 10px;
   z-index: 9999;
 }
 
-#show-panel-btn {
+#x {
   position: fixed;
   bottom: 180px;
   left: 10px;
   z-index: 9999;
 }
 
-#show-panel-btn {
+#x {
   position: fixed;
   bottom: 10vh;
   left: 10px;

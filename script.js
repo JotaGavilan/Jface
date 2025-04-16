@@ -2,7 +2,6 @@
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
-  const { drawConnectors } = window;
   const { FACEMESH_FACE_OVAL, FACEMESH_LEFT_EYE, FACEMESH_RIGHT_EYE, FACEMESH_LIPS } = window;
 
   const yawEl = document.getElementById('yaw');
@@ -88,20 +87,11 @@
       rollEl.textContent = roll;
 
       if (uartCharacteristic) {
-        const data = yaw.toString().padStart(2, '0') + mouth.toString().padStart(2, '0') + eyeL + eyeR +
-                       smile.toString().padStart(3, '0') +
-                       brows.toString().padStart(3, '0') +
-                       frown.toString().padStart(3, '0');
+        const data = yaw.toString().padStart(2, '0') + mouth.toString().padStart(2, '0') + eyeL + eyeR;
         const encoder = new TextEncoder();
         uartCharacteristic.writeValue(encoder.encode(data + "\\n"));
       }
 
-      drawConnectors(ctx, lm, FACEMESH_FACE_OVAL, { color: '#00FF00', lineWidth: 2 });
-      drawConnectors(ctx, lm, FACEMESH_LEFT_EYE, { color: '#0000FF', lineWidth: 1 });
-      drawConnectors(ctx, lm, FACEMESH_RIGHT_EYE, { color: '#0000FF', lineWidth: 1 });
-      drawConnectors(ctx, lm, FACEMESH_LIPS, { color: '#FF0000', lineWidth: 2 });
-        drawConnectors(ctx, lm, FACEMESH_RIGHT_EYEBROW, { color: '#FFA500', lineWidth: 2 });
-        drawConnectors(ctx, lm, FACEMESH_LEFT_EYEBROW, { color: '#FFA500', lineWidth: 2 });
     }
 
     ctx.restore();
