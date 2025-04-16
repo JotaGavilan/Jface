@@ -27,7 +27,7 @@ document.getElementById('connectBtn').onclick = async () => {
     });
     const server = await device.gatt.connect();
     const service = await server.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
-    uart = await service.getCharacteristic('6e400002-b5a3-f393-e0a9-e50e24dcca9e');
+    uart = await service.getCharacteristic('6e400003-b5a3-f393-e0a9-e50e24dcca9e'); // CAMBIO: usar RX
     statusEl.textContent = '✅ micro:bit connectada';
     console.log("UART conectada");
   } catch (e) {
