@@ -25,6 +25,7 @@ canvas {
   height: auto;
   transform: scaleX(-1);
   z-index: 1;
+  object-fit: cover;
 }
 #controls {
   position: fixed;
@@ -113,19 +114,30 @@ button {
   max-width: 640px;
   margin: auto;
 }
-#canvas {
-  z-index: 2;
+#video, #canvas {
   position: absolute;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   width: 100%;
   height: auto;
+  z-index: 2;
 }
 #video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
   transform: scaleX(-1);
   z-index: 1;
+  object-fit: cover;
 }
 #canvas {
-  z-index: 2;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
   z-index: 2;
 }
 
