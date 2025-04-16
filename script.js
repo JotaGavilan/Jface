@@ -10,7 +10,9 @@ const mouthEl = document.getElementById('mouth');
 const eyeLEl = document.getElementById('eyeL');
 const eyeREl = document.getElementById('eyeR');
 let ultimoEnvio = 0;
-let ultimoMensaje = "";
+let ultimoYaw = null;
+let ultimoMouth = null;
+let ultimoEyes = "";
 
 const UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
 const UART_TX_CHARACTERISTIC_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
@@ -93,31 +95,37 @@ faceMesh.onResults(results => {
     const mouth = Math.max(0, Math.min(99, Math.round(Math.hypot(lm[13].x - lm[14].x, lm[13].y - lm[14].y) * 100)));
     const eyeL = getEyeOpen(lm, true);
     const eyeR = getEyeOpen(lm, false);
+    const ojos = `${eyeL}${eyeR}`;
 
     yawEl.textContent = yaw;
     mouthEl.textContent = mouth;
     eyeLEl.textContent = eyeL;
     eyeREl.textContent = eyeR;
 
-    if (uart) {
-      const ahora = Date.now();
+    const ahora = Date.now();
+
+    const cambioYaw = (ultimoYaw === null || Math.abs(yaw - ultimoYaw) > 4);
+    const cambioMouth = (ultimoMouth === null || Math.abs(mouth - ultimoMouth) > 2);
+    const cambioOjos = ojos !== ultimoEyes;
+
+    if (uart && (cambioYaw || cambioMouth || cambioOjos) && ahora - ultimoEnvio > 100) {
       const data = yaw.toString().padStart(2, '0') +
                    mouth.toString().padStart(2, '0') +
-                   eyeL + eyeR;
+                   ojos;
+      const mensaje = data + "\n";
+      const encoded = new TextEncoder().encode(mensaje);
 
-      if (data !== ultimoMensaje && ahora - ultimoEnvio > 100) {
-        ultimoMensaje = data;
-        const mensaje = data + "\n";
-        const encoded = new TextEncoder().encode(mensaje);
-        queueGattOperation(() => uart.writeValue(encoded)
-          .then(() => {
-            console.log("📤 UART enviado:", mensaje, [...encoded]);
-            ultimoEnvio = ahora;
-          })
-          .catch(err => {
-            console.error("❌ Error al enviar por UART:", err);
-          }));
-      }
+      queueGattOperation(() => uart.writeValue(encoded)
+        .then(() => {
+          console.log("📤 UART enviado:", mensaje, [...encoded]);
+          ultimoEnvio = ahora;
+          ultimoYaw = yaw;
+          ultimoMouth = mouth;
+          ultimoEyes = ojos;
+        })
+        .catch(err => {
+          console.error("❌ Error al enviar por UART:", err);
+        }));
     }
   }
 
