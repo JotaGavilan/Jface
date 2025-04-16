@@ -104,8 +104,8 @@ faceMesh.onResults(results => {
 
     const ahora = Date.now();
 
-    const cambioYaw = (ultimoYaw === null || Math.abs(yaw - ultimoYaw) > 4);
-    const cambioMouth = (ultimoMouth === null || Math.abs(mouth - ultimoMouth) > 2);
+    const cambioYaw = (ultimoYaw === null || Math.abs(yaw - ultimoYaw) > 2);
+    const cambioMouth = (ultimoMouth === null || Math.abs(mouth - ultimoMouth) > 1);
     const cambioOjos = ojos !== ultimoEyes;
 
     if (uart && (cambioYaw || cambioMouth || cambioOjos) && ahora - ultimoEnvio > 100) {
