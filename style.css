@@ -10,23 +10,22 @@ header {
   padding: 10px;
   font-size: 1.5em;
 }
-    
-    canvas {
-      width: 100%;
-      height: auto;
-      min-height: 240px;
-      border-radius: 10px;
-      background-color: black;
-    }
-    video {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-      pointer-events: none;
-    }
+canvas {
+  width: 100%;
+  height: auto;
+  min-height: 240px;
+  border-radius: 10px;
+  background-color: black;
+}
+video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
 #controls {
   position: fixed;
   bottom: 0;
@@ -46,6 +45,7 @@ button {
 }
 #info-layer {
   display: none;
+  display: none;
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
@@ -62,6 +62,7 @@ button {
   font-weight: bold;
 }
 #info-layer {
+  display: none;
   display: none;
   position: fixed;
   top: 0; left: 0;
@@ -98,22 +99,10 @@ button {
   border-radius: 5px;
 }
 
-#video-container {
-  position: relative;
-  width: 100%;
-  max-width: 640px;
-  margin: auto;
-}
-#video, #canvas {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  height: auto;
-}
-#video {
-  transform: scaleX(-1);
-  z-index: 1;
-}
-#canvas {
-  z-index: 2;
+#data-panel {
+  margin: 12px auto;
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #00e5ff;
 }
