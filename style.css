@@ -129,3 +129,15 @@
   left: 10px;
   z-index: 9999;
 }
+
+#panel-anàlisi {
+  background: rgba(42, 42, 64, 0.85);
+  backdrop-filter: blur(5px);
+  z-index: 9999;
+}
+#show-panel-btn {
+  position: fixed;
+  bottom: 180px;
+  left: 10px;
+  z-index: 9999;
+}

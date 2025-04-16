@@ -1,62 +1,36 @@
+# P.I.A.R II. Cap amb IA
 
-# PIAR II · El cap amb IA
+Aquest projecte mostra una aplicació web que utilitza Intel·ligència Artificial (IA) per detectar moviments facials en temps real i enviar-los a una micro:bit a través de Bluetooth.
 
-Aquesta aplicació web utilitza **Intel·ligència Artificial (IA)** per a detectar en temps real:
+## ✨ Funcionalitats
 
-- ✅ La rotació horitzontal del cap (yaw)
-- ✅ L’obertura de la boca
-- ✅ L’estat dels ulls (obert/tancat)
+- Detecció de:
+  - Gir horitzontal del cap (yaw)
+  - Obertura de la boca
+  - Ull esquerre i dret (obert/tancat)
+  - Somriure (rang 0–10)
+  - Front arrugat (rang 0–10)
+  - Celles alçades (rang 0–999)
+- Dibuix dels trets facials (cara, ulls, boca, celles)
+- Enviament de dades per UART a micro:bit (sense emparellament)
+- Interfície adaptada per a dispositius mòbils
+- Panell d'anàlisi amb transparència
+- Compatible amb GitHub Pages
 
-Les dades es mostren en pantalla i es transmeten automàticament per **Bluetooth (UART)** a una **micro:bit v2**.
+## 📤 Format de dades enviades via Bluetooth (UART)
 
----
+| Camps              | Dígits | Exemple |
+|--------------------|--------|---------|
+| Gir horitzontal    | 2      | `73`    |
+| Boca               | 2      | `10`    |
+| Ull esquerre       | 1      | `1`     |
+| Ull dret           | 1      | `1`     |
+| Somriure           | 2      | `07`    |
+| Celles alçades     | 3      | `632`   |
+| Front arrugat      | 2      | `03`    |
 
-## 📡 Format dels valors enviats per UART
+Dades totals: **13 caràcters**
 
-Cadena de 6 dígits:
+## ❤️ Autor
 
-```
-YYMMED
-```
-
-- `YY` → Rotació horitzontal del cap (00–99)
-- `MM` → Obertura de la boca (00–99)
-- `E`  → Ull esquerre: 0 = tancat, 1 = obert
-- `D`  → Ull dret: 0 = tancat, 1 = obert
-
-**Exemple:** `078511` → cap 07, boca 85, ull esquerre obert, dret tancat.
-
----
-
-## 🔗 Funcionament
-
-1. S’obri des d’un navegador compatible (Chrome/Edge)
-2. Es demana accés a la càmera
-3. Es fa clic a **🔗 Connectar** per vincular-se amb la micro:bit
-4. Els valors es mostren i s’envien contínuament
-
----
-
-## 📲 Requisits
-
-- micro:bit v2 amb servei UART actiu (`bluetooth.startUartService()`)
-- Navegador amb suport per Web Bluetooth (Chrome o Edge)
-- Connexió HTTPS (GitHub Pages o similar)
-
----
-
-## 🙌 Inspiració
-
-Aquesta aplicació està basada en la idea original de:
-
-🔗 https://cardboard.lofirobot.com/face-app-info/
-
----
-
-## 🔒 Notes de privadesa
-
-Aquesta app NO envia dades a cap servidor. Tot el processament es fa al navegador localment.
-
----
-
-Desenvolupat per l’equip **PIAR II** amb ❤️ i tecnologia IA.
+Fet per **Jose** amb ❤️ i tecnologia IA.
