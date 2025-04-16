@@ -103,5 +103,5 @@ function getEyeOpen(lm, left) {
   const horizontal = distance(leftCorner, rightCorner);
   const ratio = vertical / horizontal;
 
-  return ratio > 0.25 ? 1 : 0;
+  return ratio > 0.20 ? 1 : 0;
 }
