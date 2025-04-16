@@ -4,6 +4,7 @@ const ctx = canvas.getContext('2d');
 const statusEl = document.getElementById('status');
 let uBitDevice;
 let rxCharacteristic = null;
+let uart = null;
 const yawEl = document.getElementById('yaw');
 const mouthEl = document.getElementById('mouth');
 const eyeLEl = document.getElementById('eyeL');
@@ -40,10 +41,9 @@ document.getElementById('connectBtn').onclick = async () => {
     await rxCharacteristic.startNotifications();
     rxCharacteristic.addEventListener("characteristicvaluechanged", onTxCharacteristicValueChanged);
 
-    const tx = await service.getCharacteristic(UART_RX_CHARACTERISTIC_UUID); // para enviar datos
+    uart = await service.getCharacteristic(UART_RX_CHARACTERISTIC_UUID); // para enviar datos
 
     statusEl.textContent = '✅ micro:bit connectada';
-    uart = tx;
   } catch (e) {
     console.error(e);
     statusEl.textContent = '❌ Error en la connexió';
@@ -71,7 +71,7 @@ faceMesh.setOptions({
   minTrackingConfidence: 0.5
 });
 
-faceMesh.onResults(async results => {
+faceMesh.onResults(results => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.scale(-1, 1);
@@ -99,13 +99,12 @@ faceMesh.onResults(async results => {
                    eyeL + eyeR;
       const mensaje = data + "\n";
       const encoded = new TextEncoder().encode(mensaje);
-      try {
-        await uart.writeValue(encoded);
+      uart.writeValue(encoded).then(() => {
         console.log("📤 UART enviado:", mensaje, [...encoded]);
         ultimoEnvio = ahora;
-      } catch (err) {
+      }).catch(err => {
         console.error("❌ Error al enviar por UART:", err);
-      }
+      });
     }
   }
 
@@ -113,12 +112,27 @@ faceMesh.onResults(async results => {
 });
 
 async function start() {
-  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-  video.srcObject = stream;
-  await new Promise(r => video.onloadedmetadata = r);
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  new Camera(video, { onFrame: async () => await faceMesh.send({ image: video }) }).start();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+    video.srcObject = stream;
+    await new Promise(r => video.onloadedmetadata = r);
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const cam = new Camera(video, {
+      onFrame: async () => {
+        try {
+          await faceMesh.send({ image: video });
+        } catch (e) {
+          console.error("❌ Error en procesamiento de frame:", e);
+        }
+      },
+      width: video.videoWidth,
+      height: video.videoHeight
+    });
+    cam.start();
+  } catch (e) {
+    console.error("❌ Error al iniciar la cámara:", e);
+  }
 }
 
 start();
